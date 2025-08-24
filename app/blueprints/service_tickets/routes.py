@@ -63,8 +63,8 @@ def update_ticket(ticket_id):
     data = request.get_json() or {}
     if "description" in data:
         t.description = data["description"]
-    if "status" in data:
-        t.status = data["status"]
+    # ISSUE: Removed status update because 'status' field doesn't exist in the model
+    # If you want to track ticket status, you need to add it to the ServiceTicket model first
     db.session.commit()
     return service_ticket_schema.jsonify(t), 200
 

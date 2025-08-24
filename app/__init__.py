@@ -6,7 +6,7 @@ from app.extensions import db, ma, migrate, limiter, cache
 from app.blueprints.mechanics import mechanics_bp
 from app.blueprints.service_tickets import service_tickets_bp
 from app.blueprints.customers.routes import customers_bp
-print("DEBUG >>> Customers BP loaded:", customers_bp)
+# ISSUE: Removed debug print statements - these shouldn't be in production code
 from app.blueprints.inventory import inventory_bp
 
 
@@ -24,6 +24,6 @@ def create_app(config_class="config.Config"):
     app.register_blueprint(mechanics_bp)
     app.register_blueprint(service_tickets_bp)
     app.register_blueprint(customers_bp)
-    print("DEBUG >>> Customers BP registered:", app.blueprints.keys())
+    # ISSUE: Removed debug print statements - these shouldn't be in production code
     app.register_blueprint(inventory_bp, url_prefix="/parts")
     return app

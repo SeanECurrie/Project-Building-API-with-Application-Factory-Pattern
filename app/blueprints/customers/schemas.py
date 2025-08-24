@@ -11,8 +11,11 @@ class CustomerSchema(ma.SQLAlchemyAutoSchema):
     
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
+    # ISSUE: Changed back to Email field type for proper email validation
     email = fields.Email(required=True)
-    phone = fields.Str(required=True)
+    # ISSUE: Made phone optional because the model allows it to be nullable
+    # If you want phone to be required, change the model to nullable=False
+    phone = fields.Str(required=False)   
     car = fields.Str(required=False)   
 
 customer_schema = CustomerSchema()

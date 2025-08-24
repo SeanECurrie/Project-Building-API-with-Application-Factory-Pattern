@@ -1,12 +1,14 @@
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+# ISSUE: Was using marshmallow_sqlalchemy instead of flask_marshmallow
+# This caused inconsistency with other blueprints and potential import errors
+from app.extensions import ma
 from app.models import Inventory, ServiceTicketInventory
 
-class InventorySchema(SQLAlchemyAutoSchema):
+class InventorySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Inventory
         load_instance = True
 
-class ServiceTicketInventorySchema(SQLAlchemyAutoSchema):
+class ServiceTicketInventorySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = ServiceTicketInventory
         load_instance = True

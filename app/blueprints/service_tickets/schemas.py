@@ -10,7 +10,9 @@ class ServiceTicketSchema(ma.SQLAlchemyAutoSchema):
 
     id = fields.Int(dump_only=True)
     description = fields.Str(required=True)
-    status = fields.Str(required=True)
+    # ISSUE: The model doesn't have a 'status' field, so I removed it
+    # The model has: description, date, customer_id
+    # If you want to add status later, you need to add it to the model first
 
 service_ticket_schema = ServiceTicketSchema()
 service_tickets_schema = ServiceTicketSchema(many=True)

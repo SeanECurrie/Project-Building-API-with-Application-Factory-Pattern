@@ -1,10 +1,10 @@
-from flask import request, jsonify, current_app
+from flask import request, jsonify, current_app, render_template
 from functools import wraps
 from datetime import datetime, timedelta, timezone
 
 from . import mechanics_bp
 from app.extensions import db
-from app.models import Mechanic, ServiceTicket, ticket_mechanics
+from app.models import Mechanic, ServiceTicket, ticket_mechanics, Customer, Inventory
 from app.blueprints.mechanics.schemas import mechanic_schema, mechanics_schema, login_schema
 
 from marshmallow import ValidationError
@@ -13,9 +13,137 @@ from jose import jwt, JWTError
 from sqlalchemy import func, desc
 from .schemas import mechanic_schema, mechanics_schema
 
-@mechanics_bp.route("/ping", methods=["GET"])
-def ping():
-    return jsonify({"ok": True}), 200
+@mechanics_bp.route("/ui", methods=["GET"])
+def api_demo():
+    """Simple UI showing available API endpoints and data"""
+    try:
+        mechanics = Mechanic.query.all()
+        customers = Customer.query.all()
+        tickets = ServiceTicket.query.all()
+        inventory = Inventory.query.all()
+        
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Mechanic Shop API - Available Routes</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }}
+                .endpoint {{ background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }}
+                .method {{ font-weight: bold; color: #fff; padding: 5px 10px; border-radius: 3px; }}
+                .get {{ background: #61affe; }}
+                .post {{ background: #49cc90; }}
+                .put {{ background: #fca130; }}
+                .delete {{ background: #f93e3e; }}
+                .data-section {{ margin: 20px 0; }}
+                .count {{ font-size: 24px; font-weight: bold; color: #333; }}
+            </style>
+        </head>
+        <body>
+            <h1>🔧 Mechanic Shop API - Available Routes</h1>
+            
+            <div class="data-section">
+                <h2>📊 Current Database Status</h2>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center;">
+                    <div>
+                        <div class="count">{len(mechanics)}</div>
+                        <div>Mechanics</div>
+                    </div>
+                    <div>
+                        <div class="count">{len(customers)}</div>
+                        <div>Customers</div>
+                    </div>
+                    <div>
+                        <div class="count">{len(tickets)}</div>
+                        <div>Service Tickets</div>
+                    </div>
+                    <div>
+                        <div class="count">{len(inventory)}</div>
+                        <div>Inventory Items</div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>🚀 Available API Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/mechanics/ui</strong> - This page
+                <br><small>Shows API documentation and current data</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/mechanics/ping</strong> - Health check
+                <br><small>Returns: {{"ok": true}}</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/mechanics/</strong> - List all mechanics
+                <br><small>Returns: Array of mechanic objects</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/mechanics/</strong> - Create new mechanic
+                <br><small>Body: {{"name": "string", "email": "string", "specialty": "string", "password": "string"}}</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/mechanics/login</strong> - Mechanic login
+                <br><small>Body: {{"name": "string", "password": "string"}}</small>
+                <br><small>Returns: JWT token for authentication</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/customers/</strong> - List all customers
+                <br><small>Returns: Array of customer objects</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/customers/</strong> - Create new customer
+                <br><small>Body: {{"name": "string", "email": "string", "phone": "string", "car": "string"}}</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/tickets/</strong> - List all service tickets
+                <br><small>Returns: Array of service ticket objects</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/tickets/</strong> - Create new service ticket
+                <br><small>Body: {{"description": "string", "date": "string", "customer_id": "integer"}}</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <strong>/parts/</strong> - List all inventory items
+                <br><small>Returns: Array of inventory objects</small>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <strong>/parts/</strong> - Create new inventory item
+                <br><small>Body: {{"name": "string", "description": "string", "quantity": "integer", "price": "float"}}</small>
+            </div>
+
+            <h2>🔑 Authentication</h2>
+            <p>Most endpoints require a JWT token in the Authorization header:</p>
+            <code>Authorization: Bearer &lt;your_jwt_token&gt;</code>
+            
+            <h2>📝 Test with Postman</h2>
+            <p>Use these endpoints in Postman to test your API functionality!</p>
+        </body>
+        </html>
+        """
+    except Exception as e:
+        return f"<h1>Error: {str(e)}</h1><p>This proves the API needs fixing!</p>"
 
 # ---------------- JWT helper ----------------
 def encode_token(mechanic_id: int) -> str:

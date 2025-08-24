@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mechanic Shop API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        section { margin-bottom: 40px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>Mechanic Shop API - Data Overview</h1>
+
+    <section>
+        <h2>Mechanics</h2>
+        {% if mechanics %}
+        <table>
+            <tr><th>ID</th><th>Name</th><th>Email</th><th>Specialty</th></tr>
+            {% for m in mechanics %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.name }}</td>
+                <td>{{ m.email }}</td>
+                <td>{{ m.specialty or 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No mechanics available.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Customers</h2>
+        {% if customers %}
+        <table>
+            <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Car</th></tr>
+            {% for c in customers %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.email }}</td>
+                <td>{{ c.phone or 'N/A' }}</td>
+                <td>{{ c.car or 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No customers available.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Service Tickets</h2>
+        {% if tickets %}
+        <table>
+            <tr><th>ID</th><th>Description</th><th>Date</th><th>Customer</th></tr>
+            {% for t in tickets %}
+            <tr>
+                <td>{{ t.id }}</td>
+                <td>{{ t.description }}</td>
+                <td>{{ t.date }}</td>
+                <td>{{ t.customer.name if t.customer else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No service tickets available.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>Inventory</h2>
+        {% if inventory %}
+        <table>
+            <tr><th>ID</th><th>Name</th><th>Price</th></tr>
+            {% for item in inventory %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ "%.2f"|format(item.price) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No inventory items available.</p>
+        {% endif %}
+    </section>
+</body>
+</html>

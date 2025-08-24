@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask, render_template
 from app.extensions import db, ma, migrate, limiter, cache
+from app.models import Mechanic, Customer, ServiceTicket, Inventory
 
 
 # blueprint imports
@@ -30,4 +31,19 @@ def create_app(config_class="config.Config"):
     app.register_blueprint(customers_bp)
     # ISSUE: Removed debug print statements - these shouldn't be in production code
     app.register_blueprint(inventory_bp, url_prefix="/parts")
+    
+    @app.route("/")
+    def home():
+        mechanics = Mechanic.query.all()
+        customers = Customer.query.all()
+        tickets = ServiceTicket.query.all()
+        inventory = Inventory.query.all()
+        return render_template(
+            "home.html",
+            mechanics=mechanics,
+            customers=customers,
+            tickets=tickets,
+            inventory=inventory,
+        )
+
     return app

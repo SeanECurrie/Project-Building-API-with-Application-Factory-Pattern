@@ -13,6 +13,10 @@ from app.blueprints.inventory import inventory_bp
 def create_app(config_class="config.Config"):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    
+    # Set Flask run configuration
+    app.config['FLASK_RUN_HOST'] = '127.0.0.1'
+    app.config['FLASK_RUN_PORT'] = 5001
 
     # init extensions
     db.init_app(app)
